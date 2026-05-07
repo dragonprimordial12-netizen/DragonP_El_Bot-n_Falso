@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Botón Falso</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void: #05040a;
+    --deep: #0d0b18;
+    --mist: #1a1730;
+    --accent: #c8a96e;
+    --accent2: #e05c5c;
+    --text: #d4cfc8;
+    --faint: #6e6a7a;
+    --glow: rgba(200,169,110,0.18);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--void);
+    color: var(--text);
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 1.15rem;
+    line-height: 1.85;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.35;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,169,110,0.07) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  .eyebrow {
+    font-family: 'EB Garamond', serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: 0.7;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 1s ease both;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3.2rem, 9vw, 7rem);
+    font-weight: 700;
+    line-height: 1.05;
+    color: #fff;
+    letter-spacing: -0.02em;
+    animation: fadeUp 1s 0.2s ease both;
+  }
+
+  h1 span { color: var(--accent); font-style: italic; }
+
+  .hero-sub {
+    margin-top: 1.8rem;
+    max-width: 540px;
+    color: var(--faint);
+    font-style: italic;
+    font-size: 1.1rem;
+    animation: fadeUp 1s 0.4s ease both;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2.5rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--faint);
+    animation: pulse 2.5s infinite;
+  }
+
+  /* ── SECTIONS ── */
+  .section {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 5rem 2rem;
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.9s ease, transform 0.9s ease;
+  }
+
+  .section.visible { opacity: 1; transform: none; }
+
+  .section-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--accent), transparent);
+    opacity: 0.3;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+  }
+
+  p { margin-bottom: 1.2rem; color: var(--text); }
+
+  em { color: var(--accent); font-style: italic; }
+
+  /* ── BUTTON SECTION ── */
+  .button-arena {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 6rem 2rem;
+    position: relative;
+  }
+
+  .button-aura {
+    position: relative;
+    margin: 3rem 0;
+  }
+
+  .button-aura::before {
+    content: '';
+    position: absolute;
+    inset: -40px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(224,92,92,0.12) 0%, transparent 70%);
+    animation: breathe 3s ease-in-out infinite;
+  }
+
+  .the-button {
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    border: 2px solid rgba(224,92,92,0.4);
+    background: radial-gradient(circle at 35% 35%, #3a1a1a, #1a0a0a);
+    box-shadow: 0 0 40px rgba(224,92,92,0.15), inset 0 2px 4px rgba(255,255,255,0.05);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'EB Garamond', serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(224,92,92,0.6);
+  }
+
+  .the-button:hover {
+    box-shadow: 0 0 70px rgba(224,92,92,0.3), inset 0 2px 4px rgba(255,255,255,0.08);
+    border-color: rgba(224,92,92,0.7);
+    color: rgba(224,92,92,0.9);
+    transform: scale(1.04);
+  }
+
+  .the-button:active { transform: scale(0.97); }
+
+  .button-warning {
+    font-size: 0.78rem;
+    color: var(--faint);
+    letter-spacing: 0.1em;
+    margin-top: 1.5rem;
+    font-style: italic;
+    text-align: center;
+  }
+
+  /* ── RULES ── */
+  .rules-list {
+    list-style: none;
+    margin: 2rem 0;
+  }
+
+  .rules-list li {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    align-items: flex-start;
+  }
+
+  .rule-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: rgba(200,169,110,0.2);
+    line-height: 1;
+    min-width: 2.5rem;
+  }
+
+  .rule-text { color: var(--text); }
+  .rule-text strong { color: var(--accent2); }
+
+  /* ── DANDELION ── */
+  .dandelion-block {
+    background: linear-gradient(135deg, rgba(200,169,110,0.04), transparent);
+    border: 1px solid rgba(200,169,110,0.12);
+    border-radius: 4px;
+    padding: 2rem 2.5rem;
+    margin: 2.5rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .dandelion-block::before {
+    content: '❧';
+    position: absolute;
+    top: -0.5rem;
+    right: 1.5rem;
+    font-size: 3rem;
+    color: rgba(200,169,110,0.08);
+  }
+
+  /* ── REVEAL ── */
+  .reveal-section {
+    background: linear-gradient(180deg, var(--void) 0%, var(--deep) 40%, var(--void) 100%);
+    padding: 6rem 2rem;
+    text-align: center;
+  }
+
+  .false-stamp {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(4rem, 15vw, 10rem);
+    font-weight: 700;
+    font-style: italic;
+    color: transparent;
+    -webkit-text-stroke: 2px rgba(224,92,92,0.4);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    display: block;
+    margin: 1rem 0 2rem;
+    animation: flicker 4s ease-in-out infinite;
+  }
+
+  /* ── QUESTIONS ── */
+  .question-card {
+    background: var(--deep);
+    border: 1px solid rgba(200,169,110,0.1);
+    border-left: 3px solid var(--accent);
+    padding: 1.8rem 2rem;
+    margin-bottom: 1.5rem;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .question-card p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-style: italic;
+    color: #f0ece4;
+    margin: 0;
+  }
+
+  /* ── DIVIDER ── */
+  .ornament {
+    text-align: center;
+    color: var(--accent);
+    opacity: 0.3;
+    font-size: 1.2rem;
+    letter-spacing: 0.5em;
+    margin: 1rem 0;
+  }
+
+  /* ── SUPPORT ── */
+  .support-section {
+    background: var(--deep);
+    border-top: 1px solid rgba(200,169,110,0.08);
+    padding: 5rem 2rem;
+    text-align: center;
+  }
+
+  .support-inner { max-width: 500px; margin: 0 auto; }
+
+  .support-section h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    color: #fff;
+    margin-bottom: 0.8rem;
+  }
+
+  .support-section p { color: var(--faint); font-size: 0.95rem; margin-bottom: 2rem; }
+
+  .support-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+  .btn-support {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.8rem;
+    border-radius: 3px;
+    font-family: 'EB Garamond', serif;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    letter-spacing: 0.05em;
+  }
+
+  .btn-paypal {
+    background: #003087;
+    color: #fff;
+    border: 1px solid #003087;
+  }
+
+  .btn-paypal:hover { background: #0047b3; transform: translateY(-2px); }
+
+  .btn-kofi {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid rgba(200,169,110,0.35);
+  }
+
+  .btn-kofi:hover { background: rgba(200,169,110,0.08); transform: translateY(-2px); }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 3rem 2rem;
+    font-size: 0.8rem;
+    color: var(--faint);
+    letter-spacing: 0.1em;
+    border-top: 1px solid rgba(255,255,255,0.04);
+  }
+
+  footer a { color: var(--accent); text-decoration: none; opacity: 0.6; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5,4,10,0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+
+  .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+  .modal-box {
+    background: var(--deep);
+    border: 1px solid rgba(224,92,92,0.3);
+    padding: 3rem;
+    max-width: 460px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 0 80px rgba(224,92,92,0.1);
+  }
+
+  .modal-box h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: var(--accent2);
+    margin-bottom: 1rem;
+  }
+
+  .modal-box p { font-style: italic; color: var(--faint); margin-bottom: 2rem; }
+
+  .btn-modal {
+    background: transparent;
+    border: 1px solid rgba(200,169,110,0.3);
+    color: var(--accent);
+    padding: 0.7rem 2rem;
+    font-family: 'EB Garamond', serif;
+    font-size: 1rem;
+    cursor: pointer;
+    letter-spacing: 0.1em;
+    transition: all 0.3s;
+  }
+
+  .btn-modal:hover { background: rgba(200,169,110,0.08); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+  }
+
+  @keyframes breathe {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.15); opacity: 1; }
+  }
+
+  @keyframes flicker {
+    0%, 95%, 100% { opacity: 1; }
+    96% { opacity: 0.4; }
+    97% { opacity: 1; }
+    98% { opacity: 0.3; }
+  }
+
+  /* ── HORIZONTAL RULE ── */
+  hr {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    margin: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-box">
+    <h3>¿Estás seguro?</h3>
+    <p>Una vez que presiones este botón, cesarás de existir.<br>
+    Todo lo que viviste será como una semilla de diente de león que vuela... y desaparece.<br><br>
+    <strong style="color:var(--accent2)">Nota:</strong> Experimentarás dolor justo antes.</p>
+    <button class="btn-modal" onclick="closeModal()">Cerrar — no estoy listo</button>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <p class="eyebrow">Un experimento mental</p>
+  <h1>El Botón<br><span>Falso</span></h1>
+  <p class="hero-sub">¿Qué revela sobre ti el hecho de temer — o no temer — algo que nunca existió?</p>
+  <p class="scroll-hint">↓ &nbsp; descender &nbsp; ↓</p>
+</section>
+
+<!-- SECTION 1: EL ORIGEN -->
+<section class="section" id="s1">
+  <p class="section-label">I &nbsp; El origen</p>
+  <h2>Nació del aburrimiento</h2>
+  <div class="dandelion-block">
+    <p>Imagina un botón. No uno cualquiera. Uno que, al presionarlo, hace que <em>dejes de existir</em>. No mueres como muere una vela: apagada pero recordada. No. Es algo más radical. Todo lo que fuiste, viviste y sentiste se convierte en lo que es una semilla de diente de león cuando el viento la lleva: <em>nada más ni nada menos que algo que voló y ya no está</em>.</p>
+  </div>
+  <p>Como si nunca hubieras sido. El universo continúa, pero el hueco donde estabas ni siquiera es un hueco. Es la ausencia perfecta.</p>
+</section>
+
+<hr>
+
+<!-- SECTION 2: EL MIEDO -->
+<section class="section" id="s2">
+  <p class="section-label">II &nbsp; Quiénes temen</p>
+  <h2>El botón divide a las personas</h2>
+  <p>Hay quienes, al escuchar esto, sienten un frío en el estómago. <em>Temen dejar de existir.</em> Es el miedo más antiguo: el de la muerte, el de la nada, el de que todo lo que construiste sea polvo que ni siquiera sabe que fue polvo.</p>
+  <p>Y hay quienes... no lo temen. O incluso lo desearían. El botón los deja indiferentes, o los atrae.</p>
+  <p>Eso ya dice mucho sobre cada uno.</p>
+</section>
+
+<hr>
+
+<!-- SECTION 3: LAS REGLAS -->
+<section class="section" id="s3">
+  <p class="section-label">III &nbsp; Las reglas del botón</p>
+  <h2>Pero había condiciones</h2>
+  <p>Para que el experimento fuera más profundo, se añadieron reglas. Reglas que cambian quién teme y por qué:</p>
+  <ul class="rules-list">
+    <li>
+      <span class="rule-num">01</span>
+      <span class="rule-text">Al presionar el botón, no solo dejas de existir — <strong>experimentas dolor</strong> justo en el instante previo. Un dolor indescriptible, último y breve.</span>
+    </li>
+    <li>
+      <span class="rule-num">02</span>
+      <span class="rule-text">Ese dolor no tiene testigos. Nadie lo verá, nadie lo sabrá. Es tuyo y solo tuyo, <strong>y luego tampoco lo recuerdas</strong>, porque ya no hay nadie para recordar.</span>
+    </li>
+    <li>
+      <span class="rule-num">03</span>
+      <span class="rule-text">El botón no puede ser destruido. Solo puede ser <strong>ignorado</strong>.</span>
+    </li>
+  </ul>
+  <p>Ahora incluso quienes no temían el cese de existencia tienen algo que considerar: <em>¿temes el dolor aunque nadie lo sepa, aunque no quede memoria de él?</em> Las personas con distimia — que cargaban con el dolor como compañero constante — ahora también miran el botón distinto.</p>
+</section>
+
+<hr>
+
+<!-- BUTTON -->
+<div class="button-arena section" id="s4">
+  <p class="section-label" style="align-self:center">IV &nbsp; El botón</p>
+  <h2 style="text-align:center">Aquí está</h2>
+  <div class="button-aura">
+    <button class="the-button" onclick="pressButton()">Presionar</button>
+  </div>
+  <p class="button-warning">Solo tú sabes por qué dudaste — o no dudaste.</p>
+</div>
+
+<hr>
+
+<!-- REVEAL -->
+<div class="reveal-section section" id="s5">
+  <p class="section-label" style="justify-content:center; max-width:720px; margin:0 auto 1rem">V &nbsp; La verdad</p>
+  <span class="false-stamp">Falso.</span>
+  <div style="max-width:580px; margin:0 auto;">
+    <p style="font-family:'Playfair Display',serif; font-size:1.4rem; color:#fff; font-style:italic; margin-bottom:1.5rem;">El botón nunca tuvo ese poder.</p>
+    <p>Las reglas que lo rodeaban, el miedo que generaba, las noches pensando en él — todo construido sobre una premisa que no existía. El botón era <em>falso</em>.</p>
+    <p>Y entonces surge la pregunta que se queda.</p>
+  </div>
+</div>
+
+<hr>
+
+<!-- QUESTIONS -->
+<section class="section" id="s6">
+  <p class="section-label">VI &nbsp; Las preguntas</p>
+  <h2>¿Qué queda cuando la premisa cae?</h2>
+
+  <div class="question-card">
+    <p>Si el botón era falso... ¿las reglas que lo acompañaban también eran falsas? ¿O las reglas tenían una verdad propia que existía independientemente del botón?</p>
+  </div>
+
+  <div class="question-card">
+    <p>Tu miedo era real. Lo sentiste. ¿Puede ser genuino el miedo a algo que nunca existió? ¿O eso hace que tu miedo también sea, en algún sentido, falso?</p>
+  </div>
+
+  <div class="question-card">
+    <p>Si mañana descubres que la muerte funciona distinto a como creías — que no hay dolor, o que sí lo hay — ¿cambia en algo cómo has vivido hasta hoy?</p>
+  </div>
+
+  <div class="question-card">
+    <p>¿Qué dice de ti haber <em>dudado</em> antes de presionar un botón que nunca tuvo poder? ¿Y qué dice de quien no dudó?</p>
+  </div>
+
+  <div class="ornament">· · · · ·</div>
+
+  <div class="dandelion-block">
+    <p style="font-family:'Playfair Display',serif; font-style:italic; font-size:1.1rem;">Las reglas de algo falso no tienen que ser falsas. Una mentira puede contener verdades. Un botón sin poder puede revelar, con perfecta claridad, quién eres cuando crees que nadie — ni siquiera tú en el futuro — estará mirando.</p>
+  </div>
+</section>
+
+<hr>
+
+<!-- SUPPORT -->
+<div class="support-section">
+  <div class="support-inner">
+    <h3>¿Te hizo pensar?</h3>
+    <p>Este espacio es independiente. Si quieres que sigan existiendo estos experimentos mentales, puedes apoyar con lo que puedas.</p>
+    <div class="support-btns">
+      <a href="https://www.paypal.com/donate" class="btn-support btn-paypal" target="_blank">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.026.175-.041.254-.59 3.025-2.566 6.082-8.558 6.082H9.956l-1.564 9.906h3.097l.84-5.352h2.108c4.513 0 6.99-2.178 7.785-6.35z"/></svg>
+        PayPal
+      </a>
+      <a href="https://ko-fi.com" class="btn-support btn-kofi" target="_blank">
+        ☕ Ko-fi
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>El Botón Falso &nbsp;·&nbsp; Un experimento mental de <a href="#">Dragón Primordial</a></p>
+  <p style="margin-top:0.5rem; opacity:0.5;">Lo que temiste era real. El botón, no.</p>
+</footer>
+
+<script>
+  // Intersection Observer for scroll reveals
+  const sections = document.querySelectorAll('.section');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+  sections.forEach(s => observer.observe(s));
+
+  function pressButton() {
+    document.getElementById('modal').classList.add('active');
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('active');
+  }
+
+  document.getElementById('modal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+</script>
+</body>
+</html>
